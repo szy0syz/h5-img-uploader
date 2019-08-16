@@ -259,14 +259,14 @@ var previewImg = function() {
 
 // -----------------------------------
 
-let cce_attachments = [];
+let tmp_attachments = [];
 
 const myImgs = document.querySelector('#myImgs');
 if (myImgs.children.length === 0) myImgs.appendChild(createUploaderBtn())
 
 
 function handleSelectImgs(event) {
-  if (cce_attachments.length >= 9) {
+  if (tmp_attachments.length >= 9) {
     alert('附件图限制9张');
     return;
   }
@@ -290,7 +290,7 @@ function handleSelectImgs(event) {
         const data = JSON.parse(res);
 
         data.forEach((val) => {
-          if (cce_attachments.length >= 9) return;
+          if (tmp_attachments.length >= 9) return;
           const fileUrl = val.fileUrl;
           const fileName = val.fileName;
 
@@ -311,8 +311,9 @@ function handleSelectImgs(event) {
             // 删除上传图片
             const currentImg = this.parentNode.firstChild;
             const currentFileUrl = currentImg.dataset.fileUrl;
-            cce_attachments.remove(currentFileUrl);
-            if (cce_attachments.length === 8) {
+            const targetIndex = currentFileUrl.indexOf(currentFileUrl)
+            tmp_attachments.splice(targetIndex, 1);
+            if (tmp_attachments.length === 8) {
               const boxEle = document.querySelector('#myImgs');
               boxEle.insertBefore(createUploaderBtn(), boxEle.lastElementChild);
             }
@@ -324,12 +325,12 @@ function handleSelectImgs(event) {
 
           const boxEle = document.querySelector('#myImgs');
           boxEle.insertBefore(img_container, boxEle.lastElementChild);
-          if (cce_attachments.length === 8) {
+          if (tmp_attachments.length === 8) {
             const btn = document.getElementById('uploader-btn');
             boxEle.removeChild(btn);
           }
 
-          cce_attachments.push(fileUrl);
+          tmp_attachments.push(fileUrl);
         })
       });
   }
