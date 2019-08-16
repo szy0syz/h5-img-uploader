@@ -306,7 +306,7 @@ function handleSelectImgs(event) {
           if (tmp_attachments.length >= 9) return;
           const fileUrl = val.fileUrl;
 
-          boxEle.insertBefore(createImgItem(img_domain, fileUrl, boxEle), boxEle.lastElementChild);
+          boxEle.insertBefore(createImgItem(img_domain, fileUrl, boxEle, createUploaderBtn(handleSelectImgs)), boxEle.lastElementChild);
 
           if (tmp_attachments.length === 8) {
             const btn = document.getElementById('uploader-btn');
@@ -319,8 +319,8 @@ function handleSelectImgs(event) {
   }
 }
 
-// domain:图片显示域名,  fileUrl：图片服务器相对路径,  container 最外层容器
-function createImgItem(domain, fileUrl, container) {
+// domain:图片显示域名,  fileUrl：图片服务器相对路径,  container 最外层容器 createUploaderBtn(handleSelectImgs)
+function createImgItem(domain, fileUrl, container, uploader_btn) {
   const eImg = document.createElement('IMG');
   eImg.src = domain + fileUrl;
   eImg.dataset['fileUrl'] = fileUrl;
@@ -333,7 +333,7 @@ function createImgItem(domain, fileUrl, container) {
 
   var img_tool = document.createElement('DIV');
   img_tool.className = 'img_remove';
-  img_tool.onclick = handleImgRemove.bind(this, container, tmp_attachments);
+  img_tool.onclick = handleImgRemove.bind(this, container, tmp_attachments, uploader_btn);
 
   img_container.appendChild(eImg);
   img_container.appendChild(img_tool);
@@ -342,14 +342,14 @@ function createImgItem(domain, fileUrl, container) {
 }
 
 // container:最外层容器, 记录图片路径的list, target触发的元素div.img_remove
-function handleImgRemove(container, img_list, target) {
+function handleImgRemove(container, img_list, uploader_btn, target) {
   // 删除上传图片
   const currentImg = target.target.parentNode;
   const currentFileUrl = currentImg.dataset.fileUrl;
   const targetIndex = img_list.indexOf(currentFileUrl);
   img_list.splice(targetIndex, 1);
   if (img_list.length === 8) {
-    container.appendChild(createUploaderBtn());
+    container.appendChild(uploader_btn);
   }
   target.target.parentNode.parentNode.removeChild(target.target.parentNode);
 }
