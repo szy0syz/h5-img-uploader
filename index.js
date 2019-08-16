@@ -170,8 +170,8 @@ var createEvent = function() {
 var previewImg = function() {
   var $imgs = document.querySelector('#img_scan');
 
-  var clientWidth = document.body.clientWidth; //窗口宽
-  var clientHeight = document.body.clientHeight; //窗口高
+  // var clientWidth = document.body.clientWidth; //窗口宽
+  // var clientHeight = document.body.clientHeight; //窗口高
   var imgWidth = parseInt(window.getComputedStyle($imgs).width); //图片宽
   var imgHeight = parseInt(window.getComputedStyle($imgs).height); //图片高
 
@@ -257,13 +257,25 @@ var previewImg = function() {
 
 
 
-// -----------------------------------
+
+
+
+
+
+
+
+
+// ----------------------------------------------------------------------
+
+
+
+
+
 
 let tmp_attachments = [];
 
 const myImgs = document.querySelector('#myImgs');
-if (myImgs.children.length === 0) myImgs.appendChild(createUploaderBtn())
-
+if (myImgs.children.length === 0) myImgs.appendChild(createUploaderBtn());
 
 function handleSelectImgs(event) {
   if (tmp_attachments.length >= 9) {
@@ -272,13 +284,14 @@ function handleSelectImgs(event) {
   }
 
   const _files = event.target.files;
-
+  const boxEle = document.querySelector('#myImgs');
   if (event.target.files.length > 0) {
     const url = 'http://192.168.1.253/community/attachment/upload';
+    const img_domain = 'http://192.168.1.253:8888/';
     const fd = new FormData();
 
     for (var i = 0; i < _files.length; i++) {
-      fd.append('files', _files[i])
+      fd.append('files', _files[i]);
     }
 
     fetch(url, {
@@ -289,51 +302,56 @@ function handleSelectImgs(event) {
       .then(res => {
         const data = JSON.parse(res);
 
-        data.forEach((val) => {
+        data.forEach(val => {
           if (tmp_attachments.length >= 9) return;
           const fileUrl = val.fileUrl;
-          const fileName = val.fileName;
 
-          const eImg = document.createElement('IMG');
-          eImg.src = 'http://192.168.1.253:8888/' + fileUrl;
-          eImg.dataset['fileName'] = fileName;
-          eImg.dataset['fileUrl'] = fileUrl;
-          eImg.style.width = '90%';
-          eImg.style.height = '90%';
-          eImg.onclick = handleImgClick;
+          boxEle.insertBefore(createImgItem(img_domain, fileUrl, boxEle), boxEle.lastElementChild);
 
-          var img_container = document.createElement('DIV');
-          img_container.className = 'img_container';
-
-          var img_tool = document.createElement('DIV');
-          img_tool.className = 'img_remove';
-          img_tool.onclick = function() {
-            // 删除上传图片
-            const currentImg = this.parentNode.firstChild;
-            const currentFileUrl = currentImg.dataset.fileUrl;
-            const targetIndex = currentFileUrl.indexOf(currentFileUrl)
-            tmp_attachments.splice(targetIndex, 1);
-            if (tmp_attachments.length === 8) {
-              const boxEle = document.querySelector('#myImgs');
-              boxEle.insertBefore(createUploaderBtn(), boxEle.lastElementChild);
-            }
-            this.parentNode.parentNode.removeChild(this.parentNode);
-          };
-
-          img_container.appendChild(eImg);
-          img_container.appendChild(img_tool);
-
-          const boxEle = document.querySelector('#myImgs');
-          boxEle.insertBefore(img_container, boxEle.lastElementChild);
           if (tmp_attachments.length === 8) {
             const btn = document.getElementById('uploader-btn');
             boxEle.removeChild(btn);
           }
 
           tmp_attachments.push(fileUrl);
-        })
+        });
       });
   }
+}
+
+// domain:图片显示域名,  fileUrl：图片服务器相对路径,  container 最外层容器
+function createImgItem(domain, fileUrl, container) {
+  const eImg = document.createElement('IMG');
+  eImg.src = domain + fileUrl;
+  eImg.dataset['fileUrl'] = fileUrl;
+  eImg.style.width = '90%';
+  eImg.style.height = '90%';
+  eImg.onclick = handleImgClick;
+
+  var img_container = document.createElement('DIV');
+  img_container.className = 'img_container';
+
+  var img_tool = document.createElement('DIV');
+  img_tool.className = 'img_remove';
+  img_tool.onclick = handleImgRemove.bind(this, container, tmp_attachments);
+
+  img_container.appendChild(eImg);
+  img_container.appendChild(img_tool);
+
+  return img_container;
+}
+
+// container:最外层容器, 记录图片路径的list, target触发的元素div.img_remove
+function handleImgRemove(container, img_list, target) {
+  // 删除上传图片
+  const currentImg = target.target.parentNode;
+  const currentFileUrl = currentImg.dataset.fileUrl;
+  const targetIndex = img_list.indexOf(currentFileUrl);
+  img_list.splice(targetIndex, 1);
+  if (img_list.length === 8) {
+    container.appendChild(createUploaderBtn());
+  }
+  target.target.parentNode.parentNode.removeChild(target.target.parentNode);
 }
 
 function handleImgClick() {
@@ -361,7 +379,7 @@ function handleImgClick() {
 
   createEvent(); //自定义事件
   previewImg(); //图片预览事件监听
-};
+}
 
 function createUploaderBtn() {
   const a = document.createElement('A');
@@ -370,7 +388,7 @@ function createUploaderBtn() {
   a.id = 'uploader-btn';
   const inpt = document.createElement('INPUT');
   inpt.type = 'file';
-  inpt.accept= 'image/*';
+  inpt.accept = 'image/*';
   inpt.multiple = true;
   inpt.onchange = handleSelectImgs;
   a.appendChild(inpt);
