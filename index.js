@@ -275,7 +275,7 @@ var previewImg = function() {
 let tmp_attachments = [];
 
 const myImgs = document.querySelector('#myImgs');
-if (myImgs.children.length === 0) myImgs.appendChild(createUploaderBtn());
+if (myImgs.children.length === 0) myImgs.appendChild(createUploaderBtn(handleSelectImgs));
 
 function handleSelectImgs(event) {
   if (tmp_attachments.length >= 9) {
@@ -381,7 +381,7 @@ function handleImgClick() {
   previewImg(); //图片预览事件监听
 }
 
-function createUploaderBtn() {
+function createUploaderBtn(handleSelectImgs) {
   const a = document.createElement('A');
   a.href = 'javascript:;';
   a.className = 'uploader-btn';
